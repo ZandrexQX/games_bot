@@ -53,11 +53,14 @@ async def select_maxplayer(message: Message, state: FSMContext, bot: Bot):
         await bot.send_message(message.from_user.id, f"Я жду цифру от {a} до 16, а не {message.text}")
 
 async def select_price(message: Message, state: FSMContext, bot: Bot):
-    await bot.send_message(message.from_user.id, f'Отлично, я записал игру')
-    await state.update_data(price=message.text)
-    create_data = await state.get_data()
-    create_time = create_data.get('time').split('_')[1]
-    db = Database(os.getenv('DATABASE'))
-    db.add_game(create_data['place'], create_data['date'], create_time, create_data['minplayer'],
-                create_data['maxplayer'], create_data['price'])
-    await state.clear()
+    if message.text.isdigit():
+        await bot.send_message(message.from_user.id, f'Отлично, я записал игру')
+        await state.update_data(price=message.text)
+        create_data = await state.get_data()
+        create_time = create_data.get('time').split('_')[1]
+        db = Database(os.getenv('DATABASE'))
+        db.add_game(create_data['place'], create_data['date'], create_time, create_data['minplayer'],
+                    create_data['maxplayer'], create_data['price'])
+        await state.clear()
+    else:
+        await bot.send_message(message.from_user.id, f"Я жду число, а не {message.text}")

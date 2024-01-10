@@ -6,7 +6,7 @@ from aiogram.filters import Command
 
 from core.utils.commands import set_commands
 from core.handlers.basic import get_start
-from core.handlers.profile import view_profile
+from core.handlers.profile import view_profile, view_game, view_game_date, add_match_player, del_match_player
 from core.handlers.register import start_register, reg_name, reg_phone
 from core.state.register import RegisterState
 from core.state.statecreate import CreateState
@@ -39,7 +39,10 @@ dp.message.register(select_minplayer, CreateState.minplayer)
 dp.message.register(select_maxplayer, CreateState.maxplayer)
 dp.message.register(select_price, CreateState.price)
 # Регистрируем хендлеры профиля
-dp.message.register(view_profile, F.text == 'Профиль')
+dp.message.register(view_game, F.text == 'Актуальные игры')
+dp.callback_query.register(view_game_date, F.data.startswith('view_date_'))
+dp.callback_query.register(add_match_player, F.data.startswith('add_match'))
+dp.callback_query.register(del_match_player, F.data.startswith('del_match'))
 
 async def start():
     await set_commands(bot=bot)
