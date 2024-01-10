@@ -61,6 +61,12 @@ async def select_price(message: Message, state: FSMContext, bot: Bot):
         db = Database(os.getenv('DATABASE'))
         db.add_game(create_data['place'], create_data['date'], create_time, create_data['minplayer'],
                     create_data['maxplayer'], create_data['price'])
+        users = db.db_select_column('users', 'subscription', 1)
+        for user in users:
+            await bot.send_message(user[3], f"Добавлена новая игра\n"
+                                            f"Дата: {create_data['date']}\n"
+                                            f"Время: {create_time}\n"
+                                            f"Цена: {create_data['price']}")
         await state.clear()
     else:
         await bot.send_message(message.from_user.id, f"Я жду число, а не {message.text}")

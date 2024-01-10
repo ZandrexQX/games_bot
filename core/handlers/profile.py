@@ -2,7 +2,7 @@ from Aiogram.games_bot.core.keyboards.profile_kb import get_profile_kb
 from aiogram import Bot
 from aiogram.types import Message, CallbackQuery
 from games_bot.core.utils.dbconnect import Database
-from Aiogram.games_bot.core.keyboards.profile_kb import get_date_kb, add_match, del_match
+from Aiogram.games_bot.core.keyboards.profile_kb import get_date_kb, add_match, del_match, add_sub, del_sub
 from Aiogram.games_bot.core.utils.function import list_gamer
 import os
 
@@ -75,3 +75,13 @@ async def del_match_player(call: CallbackQuery):
           f"Стоимость игры: {game[6]}\n\n" \
           f"{gamers}"
     await call.message.edit_text(msg, reply_markup=add_match(*pattern))
+
+async def edit_subscription(call: CallbackQuery):
+    db = Database(os.getenv('DATABASE'))
+    user = db.select_user_id(call.from_user.id) # тут по другому
+    if int(user[5]) == 0:
+        db.subscr_edit(user[3], 1)
+        await call.message.edit_text(f"Вы подписаны на рассылку", reply_markup=del_sub(user[3]))
+    else:
+        db.subscr_edit(user[3], 0)
+        await call.message.edit_text(f"Вы не подписаны на рассылку", reply_markup=add_sub(user[3]))

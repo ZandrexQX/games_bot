@@ -65,6 +65,41 @@ class Database:
                                   f"user_telegram_id = '{user_id}'")
         return res.fetchall()
 
+    def user_game(self, status, user_id):
+        self.cursor.execute(f"SELECT record_matchs.game_id, record_matchs.user_telegram_id, "
+                            f"games.id AS games_id, games.place_id, games.date_game, games.time_game, "
+                            f"games.price, games.status, place.id AS places_id, "
+                            f"place.name_place, place.place_address "
+                            f"FROM record_matchs JOIN games ON record_matchs.game_id = games_id "
+                            f"JOIN place ON games.place_id = places_id "
+                            f"WHERE games.status = '{status}' AND record_matchs.user_telegram_id = '{user_id}'")
+        res = self.cursor.fetchall()
+        return res
+
+    def balance_user_edit(self, user_id, balance):
+        self.cursor.execute(f"UPDATE users SET balance = '{balance}' WHERE telegram_id = '{user_id}'")
+        self.connector.commit()
+
+    def balance_system(self, operation, user_id):
+        self.cursor.execute(f"INSERT INTO balance_system (operation, user_id) "
+                            f"VALUES ('{operation}', '{user_id}')")
+        self.connector.commit()
+
+    def buy_game(self, game_id, user_id, sum):
+        self.cursor.execute(f"INSERT INTO paid_game (game_id, user_telegram_id, sum) "
+                            f"VALUES ('{game_id}', '{user_id}', '{sum}')")
+        self.connector.commit()
+
+    def select_pay(self, game_id, user_id):
+        self.cursor.execute(f"SELECT * FROM paid_game WHERE game_id = '{game_id}' "
+                            f"AND user_telegram_id = '{user_id}'")
+        res = self.cursor.fetchone()
+        return res
+
+    def subscr_edit(self, user_id, sub):
+        self.cursor.execute(f"UPDATE users SET subscription = '{sub}' WHERE telegram_id = '{user_id}'")
+        self.connector.commit()
+
     def create_db(self):
         try:
             query = f'CREATE TABLE IF NOT EXISTS users(' \
